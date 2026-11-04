@@ -1,0 +1,10 @@
+[project]
+name = "programowanie-w-python-2"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.15"
+dependencies = [
+    "alembic>=1.20.1",
+    "sqlalchemy>=2.1.8",
+]

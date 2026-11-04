@@ -1,0 +1,60 @@
+##########################################################################
+### Alembic installation: ################################################
+##########################################################################
+1)
+    uv add sqlalchemy alembic
+    uv run alembic init migrations              # Initialize alembic ("migrations" is just a directory name)
+
+2) Configure it
+    a) alembic.ini
+        script_location = %(here)s/migrations
+        sqlalchemy.url = sqlite:///test.db
+    b) migrations/env.py
+        from dzien02.cwiczenia5 import Base
+        target_metadata = Base.metadata
+
+
+
+##########################################################################
+### The Standard Development Workflow with SQLAlchemy and Alembic      ###
+##########################################################################
+1. Create an empty database and initialize it with Alembic:
+
+'''
+from sqlalchemy import create_engine
+engine = create_engine("sqlite:///test.db", echo=True)
+with engine.connect():
+    pass
+'''
+uv run alembic revision --autogenerate -m "Initialization." # Generates patch scripts
+uv run alembic upgrade head                                 # Applies scripts to the database
+                                                            # It takes into consideration only 
+                                                            # alembic_version table and revisions directory
+                                                            # It DOES NOT check physical tables in the database!
+
+# NOTE 1: The above means that instructions like:
+    
+    engine = create_engine("sqlite:///test.db", echo=False)
+    Base.metadata.create_all(engine)
+
+    must not be present in the SQLAlchemy data model scripts as they would break the whole workflow of Alembic!
+
+# NOTE 2: In case of errors at this stage make sure migrations/versions is empty!
+
+2. Develope SQLAlchemy data model (python files with classes representing tables in the database) as desired
+3. When you decide that your piece of work is completed and you want to "migrate" (reflect) changes to the database run:
+    a)  Generate a revision
+        uv run alembic revision --autogenerate -m "Many to many relation added"
+    b) Review the revision
+    c) Apply the revision to the database 
+        uv run alembic upgrade head
+
+
+
+# Miscellaneous commands:
+uv run alembic current
+uv run alembic history
+uv run alembic history --verbose
+uv run alembic show 68a4b76d2e82
+uv run alembic heads
+uv run alembic branches
